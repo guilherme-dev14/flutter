@@ -1,0 +1,8 @@
+# FVM Version Cache
+.fvm/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
