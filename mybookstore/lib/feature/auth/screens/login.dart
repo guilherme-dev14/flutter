@@ -38,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
           if (state is AuthAuthenticated) {
             // Navegar para a tela principal após login bem-sucedido
             Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const RegisterScreen()),
+              MaterialPageRoute(builder: (_) => const RegisterStoreScreen()),
             );
           } else if (state is AuthError) {
             // Mostrar mensagem de erro
@@ -120,19 +120,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Por favor, insira sua senha';
                           }
-                          // Validar regras de senha
-                          if (value.length < 6) {
-                            return 'A senha deve ter mais de 6 caracteres';
-                          }
-                       //   if (value.length > 10) {
-                        //    return 'A senha deve ter menos de 10 caracteres';
-                        //  }
-                          if (!value.contains(RegExp(r'[A-Z]'))) {
-                            return 'A senha deve conter pelo menos uma letra maiúscula';
-                          }
-                          if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
-                            return 'A senha deve conter pelo menos um caractere especial';
-                          }
                           return null;
                         },
                       ),
@@ -184,10 +171,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: state is AuthLoading
                             ? null // Desabilitar enquanto carrega
                             : () {
-                                // Navegar para tela de criar loja
-                                // Navigator.of(context).push(
-                                //   MaterialPageRoute(builder: (_) => const CreateStoreScreen()),
-                                // );
+                                 Navigator.of(context).pushReplacement(
+                                 MaterialPageRoute(builder: (_) => const RegisterStoreScreen()),
+                        );
                               },
                         child: const Text(
                           'Cadastre sua loja',

@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mybookstore/data/repositories/auth_repository.dart';
 import 'package:mybookstore/data/services/api_service.dart';
 import 'package:mybookstore/feature/auth/screens/login.dart';
-
+import 'package:mybookstore/feature/auth/screens/register.dart';
+import 'package:mybookstore/data/repositories/store_repository.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -20,6 +21,11 @@ class MyApp extends StatelessWidget {
         ),
         RepositoryProvider<AuthRepository>(
           create: (context) => AuthRepository(
+            apiService: context.read<ApiService>(),
+          ),
+        ),
+        RepositoryProvider<StoreRepository>(
+          create: (context) => StoreRepository(
             apiService: context.read<ApiService>(),
           ),
         ),
