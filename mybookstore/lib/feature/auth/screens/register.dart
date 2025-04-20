@@ -24,7 +24,6 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
   final _adminNameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _userNameController = TextEditingController();
   
   File? _bannerImage;
   String? _base64Banner;
@@ -61,61 +60,101 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
   }
   
   Future<void> _saveStore() async {
-    if (_formKey.currentState!.validate() && _base64Banner != null) {
-      setState(() {
-        _isLoading = true;
-      });
+    // Verificar se a validação do formulário passou
+    if (!_formKey.currentState!.validate()) {
+      // Se a validação falhar, mostra uma mensagem e interrompe
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, corrija os erros no formulário.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    
+    setState(() {
+      _isLoading = true;
+    });
+    
+    try {
+      // Gerar username a partir do nome (nome_sobrenome)
+      final adminName = _adminNameController.text.trim();
+      final nameParts = adminName.split(' ');
+      String username = '';
       
-      try {
-        // Criar modelos
-        final admin = UserModel(
-          name: _adminNameController.text,
-          photo: '', 
-          username: _adminNameController.text.toLowerCase().replaceAll(' ', '.'),
-          password: _passwordController.text,
-        );
-        
-        final store = StoreModel(
-          id: 0, // O ID será atribuído pelo servidor
-          name: _storeNameController.text,
-          slogan: _sloganController.text,
-          banner: _base64Banner!,
-        );
-        
-        // Obter o repositório
-        final storeRepository = RepositoryProvider.of<StoreRepository>(context);
-        
-        // Criar a loja
-        final auth = await storeRepository.createStore(store, admin);
-        
-        // Navegar para a tela de login após o sucesso
-        if (!mounted) return;
-        
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-        );
-        
+      if (nameParts.length >= 2) {
+        // Usa o primeiro e último nome para o username
+        username = '${nameParts[0].toLowerCase()}_${nameParts[nameParts.length - 1].toLowerCase()}';
+      } else {
+        // Se não houver sobrenome, usa só o nome
+        username = nameParts[0].toLowerCase();
+      }
+      
+      // Exibe qual username será usado (para debug/feedback)
+      print('Username gerado: $username');
+      
+      // Criar modelos
+      final admin = UserModel(
+        name: adminName,
+        photo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', // Imagem básica placeholder
+        username: username,
+        password: _passwordController.text,
+      );
+      
+      // Banner vazio se não foi selecionado
+      final bannerValue = _base64Banner ?? '';
+      
+      final store = StoreModel(
+        id: 0, // O ID será atribuído pelo servidor
+        name: _storeNameController.text,
+        slogan: _sloganController.text,
+        banner: bannerValue,
+      );
+      
+      // Usar o StoreRepository diretamente, sem depender de RepositoryProvider
+      final storeRepository = StoreRepository();
+      
+      // Debug: mostrar os dados sendo enviados
+      print('Enviando dados da loja: ${store.name}, ${store.slogan}');
+      print('Enviando dados do admin: ${admin.name}, ${admin.username}');
+      
+      // Criar a loja
+      await storeRepository.createStore(store, admin);
+      
+      // Mostrar mensagem de sucesso (independente do mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Loja cadastrada com sucesso!'),
             backgroundColor: Colors.green,
           ),
         );
-      } catch (e) {
+        
+        // Navegar para a tela de login após o sucesso
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false, // Remove todas as rotas anteriores
+        );
+      }
+    } catch (e) {
+      print('Erro ao cadastrar loja: $e');
+      
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erro ao cadastrar loja: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
       }
-    } 
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -132,7 +171,10 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                 child: Row(
                   children: [
                     InkWell(
-                      onTap: () => Navigator.pop(context),
+                      onTap: () => Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      ),
                       child: Container(
                         width: 40,
                         height: 35,
@@ -184,7 +226,7 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                       Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFFF2F2F7),
-                          borderRadius: BorderRadius.circular(16), // Aumentado para bordas mais arredondadas
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: TextFormField(
                           controller: _storeNameController,
@@ -228,7 +270,7 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                       ),
                       const SizedBox(height: 16),
                       
-                      // Banner
+                      // Banner (opcional agora)
                       Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFFF2F2F7),
@@ -254,6 +296,7 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                                     fontSize: 16,
                                   ),
                                 ),
+                               
                               ],
                             ),
                           ),
@@ -284,28 +327,6 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                       Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF2F2F7),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: TextFormField(
-                          controller: _userNameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Usuario do administrador',
-                            labelStyle: TextStyle(color: Color(0xFF6E7191)),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Por favor, informe o username do administrador';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 16),
                       
                       // Senha
                       Container(
@@ -318,7 +339,7 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                           obscureText: _obscurePassword,
                           decoration: InputDecoration(
                             labelText: 'Senha',
-                            labelStyle: TextStyle(color: Color(0xFF6E7191)),
+                            labelStyle: const TextStyle(color: Color(0xFF6E7191)),
                             border: InputBorder.none,
                             contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                             suffixIcon: IconButton(
@@ -369,7 +390,7 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                           obscureText: _obscureConfirmPassword,
                           decoration: InputDecoration(
                             labelText: 'Repetir senha',
-                            labelStyle: TextStyle(color: Color(0xFF6E7191)),
+                            labelStyle: const TextStyle(color: Color(0xFF6E7191)),
                             border: InputBorder.none,
                             contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                             suffixIcon: IconButton(
@@ -432,6 +453,7 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 32),
             ],
           ),
         ),
