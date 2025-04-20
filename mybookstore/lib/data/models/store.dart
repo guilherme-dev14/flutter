@@ -1,9 +1,9 @@
+import 'package:mybookstore/data/models/user.dart';
 class StoreModel {
   final int id;
   final String name;
   final String slogan;
-  final String banner;
-
+  final String banner; // Base64 da imagem
 
   StoreModel({
     required this.id,
@@ -14,7 +14,7 @@ class StoreModel {
 
   factory StoreModel.fromJson(Map<String, dynamic> json) {
     return StoreModel(
-      id: json['id'],
+      id: json['id'] ?? json['idStore'],
       name: json['name'],
       slogan: json['slogan'],
       banner: json['banner'],
@@ -23,10 +23,18 @@ class StoreModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'name': name,
       'slogan': slogan,
       'banner': banner,
+    };
+  }
+
+  Map<String, dynamic> toJsonWithAdmin(UserModel admin) {
+    return {
+      'name': name,
+      'slogan': slogan,
+      'banner': banner,
+      'admin': admin.toJsonForCreation(),
     };
   }
 }
