@@ -3,7 +3,7 @@ class UserModel {
   final String name;
   final String photo; 
   final String? role; 
-  final String username;
+  final String? username;
   final String? password; 
 
   UserModel({
@@ -11,19 +11,19 @@ class UserModel {
     required this.name,
     required this.photo,
     this.role,
-    required this.username,
+    this.username,
     this.password,
   });
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    return UserModel(
-      id: json['id'],
-      name: json['name'],
-      photo: json['photo'],
-      role: json['role'],
-      username: json['username'],
-    );
-  }
+factory UserModel.fromJson(Map<String, dynamic> json) {
+  return UserModel(
+    id: json['id'],
+    name: json['name'],
+    photo: json['photo'],
+    role: json['role'],
+    username: json['username'] ?? '', 
+  );
+}
 
   Map<String, dynamic> toJson() {
     final map = {
