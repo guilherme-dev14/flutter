@@ -96,8 +96,8 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
       // Criar modelos
       final admin = UserModel(
         name: adminName,
-        photo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', // Imagem básica placeholder
-        username: username,
+       photo: '',
+      username: username,
         password: _passwordController.text,
       );
       

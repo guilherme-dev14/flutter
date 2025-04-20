@@ -6,7 +6,7 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import './register.dart'; // Importe a tela para onde irá após o login
 import '../../../data/repositories/auth_repository.dart';
-
+import '../../home/home_screen.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -35,12 +35,11 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       child: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthAuthenticated) {
-            // Navegar para a tela principal após login bem-sucedido
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const RegisterStoreScreen()),
-            );
-          } else if (state is AuthError) {
+         if (state is AuthAuthenticated) {
+  Navigator.of(context).pushReplacement(
+    MaterialPageRoute(builder: (_) => const HomeScreen()),
+  );
+}else if (state is AuthError) {
             // Mostrar mensagem de erro
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

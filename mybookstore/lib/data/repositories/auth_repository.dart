@@ -65,6 +65,7 @@ class AuthRepository {
     await prefs.setInt('userId', authData.user.id!);
     await prefs.setString('userRole', authData.user.role!);
     await prefs.setInt('storeId', authData.store.id);
+    await prefs.setString('userName', authData.user.name);
   }
   
   // Verificar se está logado
@@ -95,4 +96,8 @@ class AuthRepository {
     final userRole = prefs.getString('userRole');
     return userRole == 'Admin';
   }
+  Future<String> getCurrentUserName() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('userName') ?? 'Usuáriot';
+}
 }
