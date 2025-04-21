@@ -10,7 +10,7 @@ class AuthRepository {
   AuthRepository({ApiService? apiService}) 
       : _apiService = apiService ?? ApiService();
   
-  // Login
+
  Future<AuthModel> login(String username, String password) async {
   try {
     final response = await _apiService.post(
@@ -25,7 +25,6 @@ class AuthRepository {
     if (response.statusCode == 200) {
       final authData = AuthModel.fromJson(response.data);
       
-      // Salvar dados de autenticação
       await _saveAuthData(authData);
       
       return authData;
@@ -37,7 +36,6 @@ class AuthRepository {
     throw Exception('Falha na autenticação: ${e.toString()}');
   }
 }
-  // Validar/renovar token
   Future<String> validateToken(String refreshToken) async {
     final response = await _apiService.post(
       'v1/auth/validateToken',
@@ -49,7 +47,6 @@ class AuthRepository {
     final newToken = data['token'];
     final newRefreshToken = data['refreshToken'];
     
-    // Atualizar tokens no armazenamento
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', newToken);
     await prefs.setString('refreshToken', newRefreshToken);
@@ -57,7 +54,6 @@ class AuthRepository {
     return newToken;
   }
   
-  // Salvar dados de autenticação no SharedPreferences
   Future<void> _saveAuthData(AuthModel authData) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', authData.token);
@@ -68,13 +64,11 @@ class AuthRepository {
     await prefs.setString('userName', authData.user.name);
   }
   
-  // Verificar se está logado
   Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.containsKey('token');
   }
   
-  // Logout
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
@@ -83,14 +77,11 @@ class AuthRepository {
     await prefs.remove('userRole');
     await prefs.remove('storeId');
   }
-  
-  // Obter ID da loja atual
   Future<int?> getCurrentStoreId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt('storeId');
   }
   
-  // Verificar se é admin
   Future<bool> isAdmin() async {
     final prefs = await SharedPreferences.getInstance();
     final userRole = prefs.getString('userRole');

@@ -7,7 +7,7 @@ class BookRepository {
   BookRepository({ApiService? apiService}) 
       : _apiService = apiService ?? ApiService();
   
-  // Listar/buscar livros
+
   Future<List<BookModel>> searchBooks(
     int storeId, {
     int? limit,
@@ -39,13 +39,11 @@ class BookRepository {
     return booksData.map((data) => BookModel.fromJson(data)).toList();
   }
   
-  // Obter detalhes de um livro
   Future<BookModel> getBook(int storeId, int bookId) async {
     final response = await _apiService.get('v1/store/$storeId/book/$bookId');
     return BookModel.fromJson(response.data);
   }
   
-  // Adicionar livro
   Future<void> addBook(int storeId, BookModel book) async {
     await _apiService.post(
       'v1/store/$storeId/book',
@@ -61,7 +59,6 @@ class BookRepository {
     );
   }
   
-  // Atualizar livro
   Future<void> updateBook(int storeId, int bookId, BookModel book) async {
     await _apiService.put(
       'v1/store/$storeId/book/$bookId',
@@ -77,7 +74,6 @@ class BookRepository {
     );
   }
   
-  // Remover livro
   Future<void> deleteBook(int storeId, int bookId) async {
     await _apiService.delete('v1/store/$storeId/book/$bookId');
   }

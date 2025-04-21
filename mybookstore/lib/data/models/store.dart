@@ -3,7 +3,7 @@ class StoreModel {
   final int id;
   final String name;
   final String slogan;
-  final String banner; // Base64 da imagem
+  final String banner;
 
   StoreModel({
     required this.id,

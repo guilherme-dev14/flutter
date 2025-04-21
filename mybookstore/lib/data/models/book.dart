@@ -1,11 +1,11 @@
 class BookModel {
   final int? id;
-  final String cover; // Base64 da imagem
+  final String cover; 
   final String title;
   final String author;
   final String synopsis;
   final int year;
-  final int rating; // 1-5
+  final int rating;
   final bool available;
 
   BookModel({
@@ -43,7 +43,7 @@ class BookModel {
       'available': available,
     };
     
-    // Incluir id se não for nulo
+
     if (id != null) {
       map['id'] = id!;
     }
@@ -51,7 +51,6 @@ class BookModel {
     return map;
   }
 
-  // Para criar uma cópia do objeto com alguns campos alterados
   BookModel copyWith({
     int? id,
     String? cover,
@@ -75,7 +74,6 @@ class BookModel {
   }
 }
 
-// Para busca de livros
 class BookSearchParams {
   final int? limit;
   final int? offset;

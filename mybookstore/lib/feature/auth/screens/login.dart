@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
     MaterialPageRoute(builder: (_) => const HomeScreen()),
   );
 }else if (state is AuthError) {
-            // Mostrar mensagem de erro
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
@@ -60,15 +60,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Logo SVG
                       SvgPicture.asset(
                         'assets/icons/book_logo.svg',
                         height: 120,
                         color: const Color(0xFF610BEF),
                       ),
                       const SizedBox(height: 46),
-
-                      // Campo de Email/Usuário
                       TextFormField(
                         controller: _userController,
                         keyboardType: TextInputType.text,
@@ -93,8 +90,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       const SizedBox(height: 16),
-
-                      // Campo de Senha
                       TextFormField(
                         controller: _passwordController,
                         obscureText: _obscureText,
@@ -123,20 +118,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       const SizedBox(height: 48),
-
-                      // Botão de Entrar
                       SizedBox(
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
                           onPressed: state is AuthLoading
-                              ? null // Desabilitar enquanto carrega
+                              ? null 
                               : () {
                                   if (_formKey.currentState!.validate()) {
                                     final usuario = _userController.text;
                                     final senha = _passwordController.text;
                                     
-                                    // Disparar evento de login
                                     context.read<AuthBloc>().add(
                                       LoginEvent(
                                         username: usuario,
@@ -165,10 +157,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Link para cadastro
                       TextButton(
                         onPressed: state is AuthLoading
-                            ? null // Desabilitar enquanto carrega
+                            ? null 
                             : () {
                                  Navigator.of(context).pushReplacement(
                                  MaterialPageRoute(builder: (_) => const RegisterStoreScreen()),

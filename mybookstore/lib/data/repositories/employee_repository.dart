@@ -7,7 +7,6 @@ class EmployeeRepository {
   EmployeeRepository({ApiService? apiService}) 
       : _apiService = apiService ?? ApiService();
   
-  // Listar funcionários
   Future<List<UserModel>> getEmployees(int storeId) async {
     final response = await _apiService.get('v1/store/$storeId/employee');
     
@@ -15,7 +14,6 @@ class EmployeeRepository {
     return employeesData.map((data) => UserModel.fromJson(data)).toList();
   }
   
-  // Adicionar funcionário
   Future<void> addEmployee(int storeId, UserModel employee) async {
     await _apiService.post(
       'v1/store/$storeId/employee',
@@ -28,7 +26,6 @@ class EmployeeRepository {
     );
   }
   
-  // Atualizar funcionário
   Future<void> updateEmployee(int storeId, int employeeId, UserModel employee) async {
     await _apiService.put(
       'v1/store/$storeId/employee/$employeeId',
@@ -40,8 +37,6 @@ class EmployeeRepository {
       },
     );
   }
-  
-  // Remover funcionário
   Future<void> deleteEmployee(int storeId, int employeeId) async {
     await _apiService.delete('v1/store/$storeId/employee/$employeeId');
   }

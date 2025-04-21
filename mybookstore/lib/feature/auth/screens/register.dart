@@ -8,7 +8,7 @@ import '../../../data/models/store.dart';
 import '../../../data/models/user.dart';
 import '../../../data/repositories/store_repository.dart';
 import '../../auth/screens/login.dart';
-
+import 'dart:math' as Math;
 class RegisterStoreScreen extends StatefulWidget {
   const RegisterStoreScreen({super.key});
 
@@ -44,25 +44,32 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
     super.dispose();
   }
   
-  Future<void> _pickBanner() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    
-    if (image != null) {
-      final File file = File(image.path);
-      final bytes = await file.readAsBytes();
-      final base64 = base64Encode(bytes);
-      
-      setState(() {
-        _bannerImage = file;
-        _base64Banner = base64;
-      });
-    }
+Future<void> _pickBanner() async {
+  final XFile? image = await _picker.pickImage(
+    source: ImageSource.gallery,
+    maxWidth: 800,
+    maxHeight: 800,
+    imageQuality: 80,
+  );
+
+  if (image != null) {
+    final File file = File(image.path);
+    final bytes = await file.readAsBytes();
+    final base64 = base64Encode(bytes); // ✅ sem prefixo MIME
+
+    setState(() {
+      _bannerImage = file;
+      _base64Banner = base64;
+    });
+
+    print('Base64 válido: ${_base64Banner?.substring(0, 50)}...');
   }
-  
+}
+
   Future<void> _saveStore() async {
-    // Verificar se a validação do formulário passou
+
     if (!_formKey.currentState!.validate()) {
-      // Se a validação falhar, mostra uma mensagem e interrompe
+   
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Por favor, corrija os erros no formulário.'),
@@ -77,51 +84,46 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
     });
     
     try {
-      // Gerar username a partir do nome (nome_sobrenome)
+
       final adminName = _adminNameController.text.trim();
       final nameParts = adminName.split(' ');
       String username = '';
       
       if (nameParts.length >= 2) {
-        // Usa o primeiro e último nome para o username
+
         username = '${nameParts[0].toLowerCase()}_${nameParts[nameParts.length - 1].toLowerCase()}';
       } else {
-        // Se não houver sobrenome, usa só o nome
+
         username = nameParts[0].toLowerCase();
       }
       
-      // Exibe qual username será usado (para debug/feedback)
+
       print('Username gerado: $username');
       
-      // Criar modelos
       final admin = UserModel(
         name: adminName,
-       photo: '',
+       photo: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
       username: username,
         password: _passwordController.text,
       );
       
-      // Banner vazio se não foi selecionado
       final bannerValue = _base64Banner ?? '';
       
       final store = StoreModel(
-        id: 0, // O ID será atribuído pelo servidor
+        id: 0, 
         name: _storeNameController.text,
         slogan: _sloganController.text,
         banner: bannerValue,
       );
       
-      // Usar o StoreRepository diretamente, sem depender de RepositoryProvider
       final storeRepository = StoreRepository();
       
-      // Debug: mostrar os dados sendo enviados
       print('Enviando dados da loja: ${store.name}, ${store.slogan}');
       print('Enviando dados do admin: ${admin.name}, ${admin.username}');
       
-      // Criar a loja
+
       await storeRepository.createStore(store, admin);
       
-      // Mostrar mensagem de sucesso (independente do mounted)
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -130,11 +132,10 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
           ),
         );
         
-        // Navegar para a tela de login após o sucesso
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => const LoginScreen()),
-          (route) => false, // Remove todas as rotas anteriores
+          (route) => false, 
         );
       }
     } catch (e) {
@@ -201,7 +202,6 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                 ),
               ),
               
-              // Logo e título
               Column(
                 children: [
                   SvgPicture.asset(
@@ -215,14 +215,13 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
               
               const SizedBox(height: 32),
               
-              // Formulário
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     children: [
-                      // Nome da loja
+
                       Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFFF2F2F7),
@@ -246,7 +245,6 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                       ),
                       const SizedBox(height: 16),
                       
-                      // Slogan
                       Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFFF2F2F7),
@@ -270,7 +268,6 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                       ),
                       const SizedBox(height: 16),
                       
-                      // Banner (opcional agora)
                       Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFFF2F2F7),
@@ -304,7 +301,6 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                       ),
                       const SizedBox(height: 16),
                       
-                      // Nome do administrador
                       Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFFF2F2F7),
@@ -328,7 +324,6 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                       ),
                       const SizedBox(height: 16),
                       
-                      // Senha
                       Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFFF2F2F7),
@@ -360,7 +355,6 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                             if (value == null || value.isEmpty) {
                               return 'Por favor, insira sua senha';
                             }
-                            // Validar regras de senha
                             if (value.length < 6) {
                               return 'A senha deve ter mais de 6 caracteres';
                             }
@@ -379,7 +373,6 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                       ),
                       const SizedBox(height: 16),
                       
-                      // Confirmar senha
                       Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFFF2F2F7),
@@ -421,7 +414,6 @@ class _RegisterStoreScreenState extends State<RegisterStoreScreen> {
                       
                       const SizedBox(height: 32),
                       
-                      // Botão Salvar
                       Container(
                         width: double.infinity,
                         height: 56,

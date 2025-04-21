@@ -1,4 +1,3 @@
-// lib/features/home/screens/home_tab_screen.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +9,7 @@ import './home_bloc.dart';
 import './home_event.dart';
 import './home_state.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -56,8 +56,8 @@ class _HomeTabScreenState extends State<HomeScreen> {
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.group), label: 'Funcionários'),
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Livros'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Funcionários'),
+          BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Livros'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Meu perfil'),
         ],
       ),
@@ -67,6 +67,189 @@ class _HomeTabScreenState extends State<HomeScreen> {
 
 class _HomeView extends StatelessWidget {
   const _HomeView();
+
+  void _showFilterDialog(BuildContext context) {
+    String? titleFilter;
+    String? authorFilter;
+    RangeValues yearRange = RangeValues(1950, 2025);
+    int selectedRating = 0;
+    bool availableOnly = false;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Filtrar',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                  
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextField(
+                        decoration: const InputDecoration(
+                          hintText: 'Filtrar por título',
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                        onChanged: (value) {
+                          titleFilter = value.isNotEmpty ? value : null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextField(
+                        decoration: const InputDecoration(
+                          hintText: 'Filtrar por autor',
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                        onChanged: (value) {
+                          authorFilter = value.isNotEmpty ? value : null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    Text('Ano de publicação', style: TextStyle(color: Colors.grey[700])),
+                    RangeSlider(
+                      values: yearRange,
+                      min: 1900,
+                      max: 2025,
+                      divisions: 125,
+                      labels: RangeLabels(
+                        yearRange.start.round().toString(),
+                        yearRange.end.round().toString(),
+                      ),
+                      onChanged: (RangeValues values) {
+                        setState(() {
+                          yearRange = values;
+                        });
+                      },
+                      activeColor: const Color(0xFF610BEF),
+                    ),
+                    
+                    const SizedBox(height: 16),
+                    
+                    Text('Avaliação', style: TextStyle(color: Colors.grey[700])),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: List.generate(5, (index) {
+                        return IconButton(
+                          icon: Icon(
+                            index < selectedRating ? Icons.star : Icons.star_border,
+                            color: index < selectedRating ? const Color(0xFF610BEF) : Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              selectedRating = index + 1;
+                            });
+                          },
+                        );
+                      }),
+                    ),
+                    
+                    const SizedBox(height: 16),
+                    
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Status', style: TextStyle(color: Colors.grey[700])),
+                        Row(
+                          children: [
+                            Switch(
+                              value: availableOnly,
+                              onChanged: (value) {
+                                setState(() {
+                                  availableOnly = value;
+                                });
+                              },
+                              activeColor: const Color(0xFF610BEF),
+                            ),
+                            const Text('Estoque'),
+                          ],
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          BlocProvider.of<HomeBloc>(context).add(
+                            FilterBooksEvent(
+                              title: titleFilter,
+                              author: authorFilter,
+                              yearStart: yearRange.start.round(),
+                              yearFinish: yearRange.end.round(),
+                              rating: selectedRating > 0 ? selectedRating : null,
+                              available: availableOnly ? true : null,
+                            ),
+                          );
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF610BEF),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Filtrar',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,50 +265,73 @@ class _HomeView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                     SvgPicture.asset(
-                        'assets/icons/book_logo.svg',
-                        height: 120,
+                      SvgPicture.asset(
+                        'assets/icons/bool-semtext.svg',
+                        height: 30,
                         color: const Color(0xFF610BEF),
                       ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'Olá, ',
-                        style: TextStyle(fontSize: 20),
-                      ),
-                      FutureBuilder<String>(
-                        future: AuthRepository().getCurrentUserName(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done) {
-                            final name = snapshot.data ?? 'Usuário';
-                            return Text(
-                              '$name 👋',
-                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                            );
-                          }
-                          return const SizedBox();
-                        },
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Text(
+                            'Olá, ',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          FutureBuilder<String>(
+                            future: AuthRepository().getCurrentUserName(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.done) {
+                                final name = snapshot.data ?? 'Usuário';
+                                return Text(
+                                  '$name 👋',
+                                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                );
+                              }
+                              return const SizedBox();
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
                   const SizedBox(height: 24),
-
-                  // Campo de busca
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF2F2F7),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: TextField(
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Buscar',
-                        icon: Icon(Icons.search),
+                    Row(
+                    children: [
+                      Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                        color: const Color(0xFFF2F2F7),
+                        borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Row(
+                        children: [
+                          const Icon(Icons.search, color: Colors.grey),
+                          const SizedBox(width: 8),
+                          Expanded(
+                          child: TextField(
+                            decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            hintText: 'Buscar',
+                            ),
+                          ),
+                          ),
+                        ],
+                        ),
                       ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                      icon: const Icon(Icons.tune, color: Colors.grey),
+                      onPressed: () {
+                        _showFilterDialog(context);
+                      },
+                      ),
+                    ],
                     ),
-                  ),
 
                   const SizedBox(height: 24),
                   const Text('Todos os livros', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -162,7 +368,6 @@ class _BookCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // navegar para detalhes do livro
       },
       child: Container(
         decoration: BoxDecoration(

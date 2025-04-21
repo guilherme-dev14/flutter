@@ -33,7 +33,6 @@ class AuthModel {
   }
 }
 
-// Modelo para login
 class LoginRequest {
   final String user;
   final String password;
