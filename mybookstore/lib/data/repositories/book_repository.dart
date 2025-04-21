@@ -7,36 +7,31 @@ class BookRepository {
   BookRepository({ApiService? apiService}) 
       : _apiService = apiService ?? ApiService();
   
-
-  Future<List<BookModel>> searchBooks(
+Future<List<BookModel>> searchBooks(
     int storeId, {
-    int? limit,
-    int? offset,
-    String? author,
+    int limit = 20,
+    int offset = 0,
     String? title,
+    String? author,
     int? yearStart,
     int? yearFinish,
     int? rating,
     bool? available,
   }) async {
-    final Map<String, dynamic> queryParams = {};
-    
-    if (limit != null) queryParams['limit'] = limit.toString();
-    if (offset != null) queryParams['offset'] = offset.toString();
-    if (author != null) queryParams['author'] = author;
-    if (title != null) queryParams['title'] = title;
-    if (yearStart != null) queryParams['year-start'] = yearStart.toString();
-    if (yearFinish != null) queryParams['year-finish'] = yearFinish.toString();
-    if (rating != null) queryParams['rating'] = rating.toString();
-    if (available != null) queryParams['available'] = available.toString();
-    
-    final response = await _apiService.get(
-      'v1/store/$storeId/book',
-      queryParameters: queryParams,
-    );
-    
-    final List<dynamic> booksData = response.data;
-    return booksData.map((data) => BookModel.fromJson(data)).toList();
+    final queryParams = <String, dynamic>{
+      'limit': limit,
+      'offset': offset,
+      if (title != null) 'title': title,
+      if (author != null) 'author': author,
+      if (yearStart != null) 'year-start': yearStart,
+      if (yearFinish != null) 'year-finish': yearFinish,
+      if (rating != null) 'rating': rating,
+      if (available != null) 'available': available,
+    };
+
+    final response = await _apiService.get('v1/store/$storeId/book', queryParameters: queryParams);
+    final data = response.data as List;
+    return data.map((item) => BookModel.fromJson(item)).toList();
   }
   
   Future<BookModel> getBook(int storeId, int bookId) async {

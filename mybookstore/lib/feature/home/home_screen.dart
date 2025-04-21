@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mybookstore/feature/employees/screens/employees_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../data/repositories/book_repository.dart';
 import '../../../data/repositories/auth_repository.dart';
@@ -23,7 +24,7 @@ class _HomeTabScreenState extends State<HomeScreen> {
 
   final _tabs = const [
     _HomeView(),
-    Center(child: Text('Funcionários')),
+    EmployeesScreen(),
     Center(child: Text('Livros')),
     Center(child: Text('Meu perfil')),
   ];
@@ -213,18 +214,19 @@ class _HomeView extends StatelessWidget {
                       height: 50,
                       child: ElevatedButton(
                         onPressed: () {
-                          BlocProvider.of<HomeBloc>(context).add(
-                            FilterBooksEvent(
-                              title: titleFilter,
-                              author: authorFilter,
-                              yearStart: yearRange.start.round(),
-                              yearFinish: yearRange.end.round(),
-                              rating: selectedRating > 0 ? selectedRating : null,
-                              available: availableOnly ? true : null,
-                            ),
-                          );
-                          Navigator.pop(context);
-                        },
+  Navigator.pop(context);
+  Future.microtask(() {
+    final bloc = context.read<HomeBloc>();
+    bloc.add(FilterBooksEvent(
+      title: titleFilter,
+      author: authorFilter,
+      yearStart: yearRange.start.round(),
+      yearFinish: yearRange.end.round(),
+      rating: selectedRating > 0 ? selectedRating : null,
+      available: availableOnly ? true : null,
+    ));
+  });
+},
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF610BEF),
                           foregroundColor: Colors.white,

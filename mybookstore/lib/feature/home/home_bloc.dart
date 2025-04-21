@@ -48,28 +48,30 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       }
     }
   }
-  Future<void> _onFilterBooks(FilterBooksEvent event, Emitter<HomeState> emit) async {
-    emit(HomeLoading());
-    try {
-      final storeId = await authRepository.getCurrentStoreId();
-      final isAdmin = await authRepository.isAdmin();
-      
-      if (storeId == null) throw Exception('Loja não encontrada');
-      
-      final books = await bookRepository.searchBooks(
-        storeId,
-        title: event.title,
-        author: event.author,
-        yearStart: event.yearStart,
-        yearFinish: event.yearFinish,
-        rating: event.rating,
-        available: event.available,
-      );
-      
-      emit(HomeLoaded(books: books, isAdmin: isAdmin));
-    } catch (e) {
-      emit(HomeError(e.toString()));
-    }
+  Future<void> _onFilterBooks(
+  FilterBooksEvent event,
+  Emitter<HomeState> emit,
+) async {
+  emit(HomeLoading());
+
+  try {
+    final storeId = await authRepository.getCurrentStoreId();
+    final isAdmin = await authRepository.isAdmin();
+
+    final books = await bookRepository.searchBooks(
+      storeId!,
+      title: event.title,
+      author: event.author,
+      yearStart: event.yearStart,
+      yearFinish: event.yearFinish,
+      rating: event.rating,
+      available: event.available,
+    );
+
+    emit(HomeLoaded(books: books, isAdmin: isAdmin));
+  } catch (e) {
+    emit(HomeError('Erro ao buscar livros com filtros: $e'));
   }
+}
 }
   
