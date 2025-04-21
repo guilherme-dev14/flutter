@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mybookstore/feature/books/screens/books_screen.dart';
 import 'package:mybookstore/feature/employees/screens/employees_screen.dart';
+import 'package:mybookstore/feature/profile/screens/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../data/repositories/book_repository.dart';
 import '../../../data/repositories/auth_repository.dart';
@@ -25,8 +27,8 @@ class _HomeTabScreenState extends State<HomeScreen> {
   final _tabs = const [
     _HomeView(),
     EmployeesScreen(),
-    Center(child: Text('Livros')),
-    Center(child: Text('Meu perfil')),
+    BooksScreen(),
+    ProfileScreen(),
   ];
 
   @override
@@ -365,7 +367,10 @@ class _HomeView extends StatelessWidget {
 class _BookCard extends StatelessWidget {
   final BookModel book;
   const _BookCard({required this.book});
-
+String sanitizeBase64(String base64String) {
+  final regex = RegExp(r'data:image/[^;]+;base64,');
+  return base64String.replaceAll(regex, '');
+}
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -382,10 +387,10 @@ class _BookCard extends StatelessWidget {
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               child: Image.memory(
-                base64Decode(book.cover),
-                height: 140,
-                width: double.infinity,
-                fit: BoxFit.cover,
+                base64Decode(sanitizeBase64(book.cover)),
+                width: 50,
+  height: 50,
+  fit: BoxFit.cover,
               ),
             ),
             Padding(

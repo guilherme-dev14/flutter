@@ -1,7 +1,7 @@
 class UserModel {
   final int? id;
   final String name;
-  final String photo; 
+  final String? photo; 
   final String? role; 
   final String? username;
   final String? password; 
@@ -9,7 +9,7 @@ class UserModel {
   UserModel({
     this.id,
     required this.name,
-    required this.photo,
+    this.photo,
     this.role,
     this.username,
     this.password,
@@ -19,7 +19,7 @@ factory UserModel.fromJson(Map<String, dynamic> json) {
   return UserModel(
     id: json['id'],
     name: json['name'],
-    photo: json['photo'],
+    photo: json['photo'] ?? 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
     role: json['role'],
     username: json['username'] ?? '', 
   );
